@@ -67,16 +67,28 @@ export class App {
 
       // Register a service worker for caching
 
-      await this.registerServiceWorker(book);
+      // await this.registerServiceWorker(book);
 
       // Initialize the playback engine with the parsed book data
       this.playBackEngine.initializeBook(book);
+
+      //fake progress bar to pass on the functions
+      this.simulateFakeCachingProgress(book.bookName);
 
       console.log("Initialization completed successfully!");
     } catch (error) {
       // Handle any errors that may occur during initialization
       console.error("Initialization error:", error);
     }
+  }
+
+  private simulateFakeCachingProgress(bookName: string) {
+    const steps = [25, 50, 75, 100];
+    steps.forEach((val, i) => {
+      setTimeout(() => {
+        handleLoadingMessage({ data: { data: { progress: `${val}`, bookName } } }, val);
+      }, i * 700); 
+    });
   }
 
   enforceLandscapeMode() {
@@ -88,53 +100,53 @@ export class App {
     }
   }
 
-  async registerServiceWorker(book: Book) {
-    if ("serviceWorker" in navigator) {
-      try {
-        let wb = new Workbox("/sw.js", {});
-        await wb.register();
-        await navigator.serviceWorker.ready;
-        if (localStorage.getItem(book.bookName) == null) {
-          loadingScreen!.style.display = "flex";
-          this.broadcastChannel.postMessage({
-            command: "Cache",
-            data: {
-              lang: this.lang,
-              bookData: book,
-              contentFile: this.contentFilePath,
-            },
-          });
-        } else {
-          loadingScreen!.style.display = "none";
-        }
+  // async registerServiceWorker(book: Book) {
+  //   if ("serviceWorker" in navigator) {
+  //     try {
+  //       let wb = new Workbox("/sw.js", {});
+  //       await wb.register();
+  //       await navigator.serviceWorker.ready;
+  //       if (localStorage.getItem(book.bookName) == null) {
+  //         loadingScreen!.style.display = "flex";
+  //         this.broadcastChannel.postMessage({
+  //           command: "Cache",
+  //           data: {
+  //             lang: this.lang,
+  //             bookData: book,
+  //             contentFile: this.contentFilePath,
+  //           },
+  //         });
+  //       } else {
+  //         loadingScreen!.style.display = "none";
+  //       }
 
-        this.broadcastChannel.onmessage = (event) => {
-          // console.log("CRapp: Message Received!");
-          console.log(event.data.command);
-          if (event.data.command == "Activated") {
-            this.broadcastChannel.postMessage({
-              command: "Cache",
-              data: {
-                lang: this.lang,
-                bookData: book,
-                contentFile: this.contentFilePath,
-              },
-            });
-          }
-          if (event.data.command == "CachingProgress") {
-            // console.log("Caching Progress: ", event.data.data.progress);
-            let progressValue = parseInt(event.data.data.progress);
-            handleLoadingMessage(event, progressValue);
-          }
-          if (event.data.command == "UpdateFound") {
-            handleUpdateFoundMessage();
-          }
-        };
-      } catch (error) {
-        console.log("Error Registering Service Worker", error);
-      }
-    }
-  }
+  //       this.broadcastChannel.onmessage = (event) => {
+  //         // console.log("CRapp: Message Received!");
+  //         console.log(event.data.command);
+  //         if (event.data.command == "Activated") {
+  //           this.broadcastChannel.postMessage({
+  //             command: "Cache",
+  //             data: {
+  //               lang: this.lang,
+  //               bookData: book,
+  //               contentFile: this.contentFilePath,
+  //             },
+  //           });
+  //         }
+  //         if (event.data.command == "CachingProgress") {
+  //           // console.log("Caching Progress: ", event.data.data.progress);
+  //           let progressValue = parseInt(event.data.data.progress);
+  //           handleLoadingMessage(event, progressValue);
+  //         }
+  //         if (event.data.command == "UpdateFound") {
+  //           handleUpdateFoundMessage();
+  //         }
+  //       };
+  //     } catch (error) {
+  //       console.log("Error Registering Service Worker", error);
+  //     }
+  //   }
+  // }
 }
 
 // TODO: Added to backlog for cleanup, we ideally should move this to a separate file,

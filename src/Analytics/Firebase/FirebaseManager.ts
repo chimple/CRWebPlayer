@@ -5,12 +5,17 @@ import { firebaseConfig } from "./config";
 export class FirebaseAnalyticsManager {
   public static instance: FirebaseAnalyticsManager;
   public firebaseApp: FirebaseApp;
-  public firebaseAnalytics: Analytics;
+  public firebaseAnalytics: Analytics | null = null;
 
   public constructor() {
     try {
       this.firebaseApp = initializeApp(firebaseConfig);
-      this.firebaseAnalytics = getAnalytics(this.firebaseApp);
+      if (navigator.onLine) {
+        this.firebaseAnalytics = getAnalytics(this.firebaseApp);
+        console.log("Firebase Analytics initialized.");
+      } else {
+        console.warn("Offline: Firebase Analytics not initialized.");
+      }
     } catch (error) {
       console.error("Error while initializing Firebase:", error);
     }
@@ -25,8 +30,10 @@ export class FirebaseAnalyticsManager {
 
   public logEventWithPayload(eventName: string, payload: object): void {
     try {
-      console.log(`Sending custom event ${eventName} with data:`, payload);
-      logEvent(this.firebaseAnalytics, eventName, payload);
+      if (this.firebaseAnalytics) {
+        logEvent(this.firebaseAnalytics, eventName, payload);
+      }
+      console.log(`Logging custom event: ${eventName}`, payload);
     } catch (error) {
       console.error("Error while logging custom event:", error);
     }
@@ -34,8 +41,10 @@ export class FirebaseAnalyticsManager {
 
   public logSessionStartWithPayload(payload: object): void {
     try {
+      if (this.firebaseAnalytics) {
+        logEvent(this.firebaseAnalytics, "session_start", payload);
+      }
       console.log("Logging session start with data:", payload);
-      logEvent(this.firebaseAnalytics, "session_start", payload);
     } catch (error) {
       console.error("Error while logging session start:", error);
     }
@@ -43,8 +52,10 @@ export class FirebaseAnalyticsManager {
 
   public logDownloadProgressWithPayload(eventName: string, payload: object): void {
     try {
-      console.log("Logging download progress for ", eventName, " with data:", payload);
-      logEvent(this.firebaseAnalytics, eventName, payload);
+      if (this.firebaseAnalytics) {
+        logEvent(this.firebaseAnalytics, eventName, payload);
+      }
+      console.log("Logging download progress for", eventName, "with data:", payload);
     } catch (error) {
       console.error("Error while logging download progress:", error);
     }

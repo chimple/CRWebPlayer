@@ -4,6 +4,11 @@
       "public": ".",
       "site": "ibiza-stage-story-respect",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    },
+    {
+      "public": ".",
+      "site": "ibiza-stage-story-respect-dev",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     }
   ]
 }

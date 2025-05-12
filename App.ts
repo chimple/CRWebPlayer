@@ -37,6 +37,7 @@ export class App {
 
   constructor(bookName: string, contentFilePath: string, imagesPath: string, audioPath: string) {
     console.log("Curious Reader App " + appVersion + " initializing!");
+    console.log("In CRWebPlayer App");
     console.log("Checking the web hosting");
     this.bookName = bookName;
     this.contentFilePath = contentFilePath;
@@ -239,6 +240,27 @@ if (bookName == null) {
 
 console.log("Book Name: " + bookName);
 
+// Set up Android-to-JS bridge listener
+window.onDataFromAndroid = function (responseJson: string) {
+  AndroidBridge._handleDataFromAndroid(responseJson);
+};
+
+if (window.Android?.sendInstalledAppInfoToJS) {
+  console.log("Android bridge is available: sendInstalledAppInfoToJS is ready.");
+} else {
+  console.warn("Android bridge not available or sendInstalledAppInfoToJS is missing.");
+}
+
+// Check if app is installed using Android bridge
+AndroidBridge.requestInstalledAppInfo()
+  .then((data) => {
+    console.log("isAppInstalled:", data.isAppInstalled);
+  })
+  .catch((err) => {
+    console.error("Error in installedAppInfo promise:", err);
+  });
+
+
 let app: App = new App(
   bookName,
   `/BookContent/${bookName}/content/content.json`,
@@ -248,21 +270,4 @@ let app: App = new App(
 
 app.initialize();
 
-// Make sure to listen for the response globally
-console.log(
-  "Android available: requestDataFromContainer",
-  !!window.Android?.requestDataFromContainer
-);
-window.onDataFromAndroid = function (responseJson: string) {
-  AndroidBridge._handleDataFromAndroid(responseJson);
-};
 
-//checking installedAppInfo
-console.log('In CRWebPlayer App');
-AndroidBridge.requestInstalledAppInfo()
-.then((data) => {
-  console.log('isAppInstalled:', data.isAppInstalled);
-})
-.catch((err) => {
-  console.error('Error in installedAppInfo promise:', err);
-});

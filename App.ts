@@ -7,6 +7,8 @@ import { FirebaseAnalyticsManager } from "./src/Analytics/Firebase/FirebaseManag
 import { campaignId, campaignSource, crUserId } from "./src/common";
 import { AndroidBridge } from "./src/utils/androidBridge";
 
+declare const window: any;
+
 let appVersion: string = "v0.3.11";
 let appName: string = "CRWebPlayer";
 
@@ -64,15 +66,7 @@ export class App {
       // Log book information for debugging
       console.log("App initialized with book:", book);
 
-      //checking installedAppInfo
-      console.log('In CRWebPlayer App');
-      AndroidBridge.requestInstalledAppInfo()
-      .then((data) => {
-        console.log('isAppInstalled:', data.isAppInstalled);
-      })
-      .catch((err) => {
-        console.error('Error in installedAppInfo promise:', err);
-      });
+
 
       // Enforce landscape mode (if supported)
       this.enforceLandscapeMode();
@@ -253,3 +247,22 @@ let app: App = new App(
 );
 
 app.initialize();
+
+// Make sure to listen for the response globally
+console.log(
+  "Android available: requestDataFromContainer",
+  !!window.Android?.requestDataFromContainer
+);
+window.onDataFromAndroid = function (responseJson: string) {
+  AndroidBridge._handleDataFromAndroid(responseJson);
+};
+
+//checking installedAppInfo
+console.log('In CRWebPlayer App');
+AndroidBridge.requestInstalledAppInfo()
+.then((data) => {
+  console.log('isAppInstalled:', data.isAppInstalled);
+})
+.catch((err) => {
+  console.error('Error in installedAppInfo promise:', err);
+});

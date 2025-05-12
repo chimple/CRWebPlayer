@@ -34,6 +34,7 @@ export class App {
 
   constructor(bookName: string, contentFilePath: string, imagesPath: string, audioPath: string) {
     console.log("Curious Reader App " + appVersion + " initializing!");
+    console.log("Checking the web hosting");
     this.bookName = bookName;
     this.contentFilePath = contentFilePath;
     this.imagesPath = imagesPath;

@@ -65,7 +65,7 @@ export class App {
       console.log("App initialized with book:", book);
 
       //checking installedAppInfo
-      console.log('In Assessment Survey App');
+      console.log('In CRWebPlayer App');
       AndroidBridge.requestInstalledAppInfo()
       .then((data) => {
         console.log('isAppInstalled:', data.isAppInstalled);

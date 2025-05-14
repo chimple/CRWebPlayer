@@ -24,6 +24,11 @@ let logged100PercentDownload: boolean = false;
 
 let firebaseAnalyticsManager: FirebaseAnalyticsManager = FirebaseAnalyticsManager.getInstance();
 
+// Set up Android-to-JS bridge listener at top level
+window.onDataFromAndroid = function (responseJson: string) {
+  AndroidBridge._handleDataFromAndroid(responseJson);
+};
+
 export class App {
   public bookName: string;
   public contentParser: ContentParser;
@@ -240,10 +245,6 @@ if (bookName == null) {
 
 console.log("Book Name: " + bookName);
 
-// Set up Android-to-JS bridge listener
-window.onDataFromAndroid = function (responseJson: string) {
-  AndroidBridge._handleDataFromAndroid(responseJson);
-};
 
 if (window.Android?.sendInstalledAppInfoToJS) {
   console.log("Android bridge is available: sendInstalledAppInfoToJS is ready.");

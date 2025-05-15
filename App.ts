@@ -246,7 +246,7 @@ console.log("Book Name: " + bookName);
 
 try {
   const data = await AndroidBridge.requestInstalledAppInfo();
-  console.log("Got response from Promise, isAppInstalled is:", data.isAppInstalled);
+  // console.log("Got response from Promise, isAppInstalled is:", data.isAppInstalled);
   Utils.isRespect = data.isAppInstalled;
 } catch (err) {
   console.error("Error in installedAppInfo promise:", err);

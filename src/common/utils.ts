@@ -1,8 +1,12 @@
+export class Utils{
+  public static isRespect: boolean = false;
+}
+
 //**************** Android bridge interface and declarations */
 interface AndroidBridge {
   sendDataToContainer: (key: string, data: any) => void; // Method to send data to Android container
   requestDataFromContainer: (data: any) => any; // Method to request data from Android container
-  sendInstalledAppInfoToJS: () => void; //New Method to request InstalledApppInfo
+  sendInstalledAppInfoToJS: () => void; //New Method for sending InstalledApppInfo from Android 
   // Add more methods as needed for the JavaScript interface from Android
 }
 
@@ -24,7 +28,7 @@ const _callbacks: CallbackMap = window._callbacks;
 export const AndroidBridge = {
   sendDataToContainer(key: string, data: any) {
     try {
-      console.log(`Attempting to send ${key} to container:`, JSON.stringify(data));
+      // console.log(`Attempting to send ${key} to container:`, JSON.stringify(data));
       if (window.Android !== undefined) {
         // Stringify the data before sending to avoid [object Object] issues
         const jsonData = typeof data === "object" ? JSON.stringify(data) : data;
@@ -40,7 +44,6 @@ export const AndroidBridge = {
   requestDataFromContainer(type: string): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
-        console.log(`requesting ${type}`);
         if (window.Android !== undefined) {
           _callbacks[type] = resolve; // store callback by type
           window.Android.requestDataFromContainer(type);
@@ -56,7 +59,6 @@ export const AndroidBridge = {
   requestInstalledAppInfo(): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
-        console.log("Requesting InstalledAppInfo");
         if (window.Android !== undefined) {
           _callbacks["installedAppInfo"] = resolve;
 
@@ -73,7 +75,6 @@ export const AndroidBridge = {
     _handleDataFromAndroid(responseJson: string) {
     try {
       const data = JSON.parse(responseJson);
-      console.log("Data received from Android:", responseJson);
       const type = data?.type;
 
       if (type && _callbacks[type]) {

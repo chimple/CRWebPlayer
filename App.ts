@@ -5,7 +5,7 @@ import { Workbox, WorkboxEventMap } from "workbox-window";
 import { Book } from "./src/Models/Models";
 import { FirebaseAnalyticsManager } from "./src/Analytics/Firebase/FirebaseManager";
 import { campaignId, campaignSource, crUserId } from "./src/common";
-import { AndroidBridge } from "./src/utils/androidBridge";
+import { AndroidBridge, Utils } from "./src/common/utils";
 
 declare const window: any;
 
@@ -42,8 +42,7 @@ export class App {
 
   constructor(bookName: string, contentFilePath: string, imagesPath: string, audioPath: string) {
     console.log("Curious Reader App " + appVersion + " initializing!");
-    console.log("In CRWebPlayer App");
-    console.log("Checking the web hosting");
+
     this.bookName = bookName;
     this.contentFilePath = contentFilePath;
     this.imagesPath = imagesPath;
@@ -245,21 +244,13 @@ if (bookName == null) {
 
 console.log("Book Name: " + bookName);
 
-
-if (window.Android?.sendInstalledAppInfoToJS) {
-  console.log("Android bridge is available: sendInstalledAppInfoToJS is ready.");
-} else {
-  console.warn("Android bridge not available or sendInstalledAppInfoToJS is missing.");
+try {
+  const data = await AndroidBridge.requestInstalledAppInfo();
+  console.log("Got response from Promise, isAppInstalled is:", data.isAppInstalled);
+  Utils.isRespect = data.isAppInstalled;
+} catch (err) {
+  console.error("Error in installedAppInfo promise:", err);
 }
-
-// Check if app is installed using Android bridge
-AndroidBridge.requestInstalledAppInfo()
-  .then((data) => {
-    console.log("isAppInstalled:", data.isAppInstalled);
-  })
-  .catch((err) => {
-    console.error("Error in installedAppInfo promise:", err);
-  });
 
 
 let app: App = new App(

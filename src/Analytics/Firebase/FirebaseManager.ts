@@ -1,6 +1,7 @@
 import { initializeApp, FirebaseApp } from "firebase/app";
 import { getAnalytics, logEvent, Analytics } from "firebase/analytics";
 import { firebaseConfig } from "./config";
+import { Utils } from "../../common/utils";
 
 export class FirebaseAnalyticsManager {
   public static instance: FirebaseAnalyticsManager;
@@ -10,7 +11,7 @@ export class FirebaseAnalyticsManager {
   public constructor() {
     try {
       this.firebaseApp = initializeApp(firebaseConfig);
-      if (navigator.onLine) {
+      if (!Utils.isRespect) {
         this.firebaseAnalytics = getAnalytics(this.firebaseApp);
         console.log("Firebase Analytics initialized.");
       } else {

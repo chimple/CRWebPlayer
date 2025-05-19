@@ -5,6 +5,9 @@ import { Workbox, WorkboxEventMap } from "workbox-window";
 import { Book } from "./src/Models/Models";
 import { FirebaseAnalyticsManager } from "./src/Analytics/Firebase/FirebaseManager";
 import { campaignId, campaignSource, crUserId } from "./src/common";
+import { AndroidBridge, Utils } from "./src/common/utils";
+
+declare const window: any;
 
 let appVersion: string = "v0.3.11";
 let appName: string = "CRWebPlayer";
@@ -21,6 +24,11 @@ let logged100PercentDownload: boolean = false;
 
 let firebaseAnalyticsManager: FirebaseAnalyticsManager = FirebaseAnalyticsManager.getInstance();
 
+// Set up Android-to-JS bridge listener at top level
+window.onDataFromAndroid = function (responseJson: string) {
+  AndroidBridge._handleDataFromAndroid(responseJson);
+};
+
 export class App {
   public bookName: string;
   public contentParser: ContentParser;
@@ -34,6 +42,7 @@ export class App {
 
   constructor(bookName: string, contentFilePath: string, imagesPath: string, audioPath: string) {
     console.log("Curious Reader App " + appVersion + " initializing!");
+
     this.bookName = bookName;
     this.contentFilePath = contentFilePath;
     this.imagesPath = imagesPath;
@@ -61,6 +70,8 @@ export class App {
 
       // Log book information for debugging
       console.log("App initialized with book:", book);
+
+
 
       // Enforce landscape mode (if supported)
       this.enforceLandscapeMode();
@@ -233,6 +244,15 @@ if (bookName == null) {
 
 console.log("Book Name: " + bookName);
 
+try {
+  const data = await AndroidBridge.requestInstalledAppInfo();
+  // console.log("Got response from Promise, isAppInstalled is:", data.isAppInstalled);
+  Utils.isRespect = data.isAppInstalled;
+} catch (err) {
+  console.error("Error in installedAppInfo promise:", err);
+}
+
+
 let app: App = new App(
   bookName,
   `/BookContent/${bookName}/content/content.json`,
@@ -241,3 +261,5 @@ let app: App = new App(
 );
 
 app.initialize();
+
+

@@ -6,7 +6,9 @@
   "scripts": {
     "build": "webpack",
     "injectManifest": "npx workbox injectManifest",
-    "dev": "webpack && npx workbox injectManifest && live-server --no-browser"
+    "dev": "webpack --mode=development && npx workbox injectManifest && live-server dist --no-browser",
+    "serve": "webpack serve --mode=development",
+    "prod-build": "webpack --mode=production"
   },
   "devDependencies": {
     "@splidejs/splide": "^4.1.4",

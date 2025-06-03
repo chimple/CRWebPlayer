@@ -1,30 +1,36 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: './App.ts',
-	devtool: 'inline-source-map',
+  mode: "development",
+  entry: "./App.ts",
+  devtool: "inline-source-map",
   module: {
     rules: [
       {
         test: /\.ts?$/,
-        use: 'ts-loader',
+        use: "ts-loader",
         exclude: /node_modules/,
       },
     ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
+    extensions: [".ts", ".js"],
   },
   output: {
-    filename: 'app.js',
-    path: path.resolve(__dirname, 'dist'),
+    filename: "app.js",
+    path: path.resolve(__dirname, "dist"),
+    publicPath: "/", // ensures assets resolve from root
   },
+  // output: {
+  //   filename: 'app.js',
+  //   path: path.resolve(__dirname, 'dist'),
+  // },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Curious Reader',
-      template: 'index.html',
-      filename: 'index.html',
+      // title: "Curious Reader",
+      template: "index.html",
+      // filename: "index.html",
     }),
   ],
   experiments: {
@@ -32,7 +38,7 @@ module.exports = {
   },
   devServer: {
     static: {
-      directory: path.join(__dirname, '/'),
+      directory: path.join(__dirname, "dist"),
     },
     compress: true,
     port: 9000,

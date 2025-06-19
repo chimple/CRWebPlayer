@@ -98,7 +98,7 @@ export class App {
     steps.forEach((val, i) => {
       setTimeout(() => {
         handleLoadingMessage({ data: { data: { progress: `${val}`, bookName } } }, val);
-      }, i * 700); 
+      }, i * 700);
     });
   }
 
@@ -256,9 +256,9 @@ try {
 
 let app: App = new App(
   bookName,
-  `/BookContent/${bookName}/content/content.json`,
-  `/BookContent/${bookName}/content/images/`,
-  `/BookContent/${bookName}/content/audios/`
+  `/${bookName}/content/content.json`,
+  `/${bookName}/content/images/`,
+  `/${bookName}/content/audios/`
 );
 
 app.initialize();

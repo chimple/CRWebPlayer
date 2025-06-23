@@ -254,11 +254,16 @@ try {
 }
 
 
-let app: App = new App(
+let app: App = Utils.isNanoHttpd ? new App(
   bookName,
   `/${bookName}/content/content.json`,
   `/${bookName}/content/images/`,
   `/${bookName}/content/audios/`
+) : new App(
+  bookName,
+  `/BookContent/${bookName}/content/content.json`,
+  `/BookContent/${bookName}/content/images/`,
+  `/BookContent/${bookName}/content/audios/`
 );
 
 app.initialize();

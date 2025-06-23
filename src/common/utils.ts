@@ -1,12 +1,13 @@
 export class Utils{
   public static isRespect: boolean = false;
+  public static isNanoHttpd: boolean = false;
 }
 
 //**************** Android bridge interface and declarations */
 interface AndroidBridge {
   sendDataToContainer: (key: string, data: any) => void; // Method to send data to Android container
   requestDataFromContainer: (data: any) => any; // Method to request data from Android container
-  sendInstalledAppInfoToJS: () => void; //New Method for sending InstalledApppInfo from Android 
+  sendInstalledAppInfoToJS: () => void; //New Method for sending InstalledApppInfo from Android
   // Add more methods as needed for the JavaScript interface from Android
 }
 
@@ -87,5 +88,5 @@ export const AndroidBridge = {
       console.error("Failed to parse data from Android:", e);
     }
   },
-  
+
 };

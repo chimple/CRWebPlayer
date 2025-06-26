@@ -254,16 +254,16 @@ try {
 }
 
 
-let app: App = Utils.isNanoHttpd ? new App(
+let app: App = Utils.isRespect ? new App(
   bookName,
   `/${bookName}/content/content.json`,
   `/${bookName}/content/images/`,
   `/${bookName}/content/audios/`
 ) : new App(
   bookName,
-  `/BookContent/${bookName}/content/content.json`,
-  `/BookContent/${bookName}/content/images/`,
-  `/BookContent/${bookName}/content/audios/`
+  `https://curious-reader.web.app/web-apps/story/${bookName}/content/content.json`,
+  `https://curious-reader.web.app/web-apps/story/${bookName}/content/images/`,
+  `https://curious-reader.web.app/web-apps/story/${bookName}/content/audios/`
 );
 
 app.initialize();

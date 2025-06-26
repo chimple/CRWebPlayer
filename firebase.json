@@ -1,12 +1,12 @@
 {
   "hosting": [
     {
-      "public": ".",
+      "public": "./dist",
       "site": "ibiza-stage-story-respect",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     },
     {
-      "public": ".",
+      "public": "./dist",
       "site": "ibiza-stage-story-respect-dev",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     }

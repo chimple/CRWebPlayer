@@ -1,6 +1,5 @@
 export class Utils{
   public static isRespect: boolean = false;
-  public static isNanoHttpd: boolean = false;
 }
 
 //**************** Android bridge interface and declarations */

@@ -6,6 +6,7 @@ import { Book } from "./src/Models/Models";
 import { FirebaseAnalyticsManager } from "./src/Analytics/Firebase/FirebaseManager";
 import { campaignId, campaignSource, crUserId } from "./src/common";
 import { AndroidBridge, Utils } from "./src/common/utils";
+import { assetUrl } from "./src/common/global-properties";
 
 declare const window: any;
 
@@ -247,8 +248,8 @@ console.log("Book Name: " + bookName);
 try {
   const data = await AndroidBridge.requestInstalledAppInfo();
   // console.log("Got response from Promise, isAppInstalled is:", data.isAppInstalled);
-  // Utils.isRespect = data.isAppInstalled;
-  Utils.isRespect=true
+  if(!Utils.isRespect)
+    Utils.isRespect = data.isAppInstalled;
 } catch (err) {
   console.error("Error in installedAppInfo promise:", err);
 }
@@ -261,9 +262,9 @@ let app: App = Utils.isRespect ? new App(
   `/${bookName}/content/audios/`
 ) : new App(
   bookName,
-  `https://curious-reader.web.app/web-apps/story/${bookName}/content/content.json`,
-  `https://curious-reader.web.app/web-apps/story/${bookName}/content/images/`,
-  `https://curious-reader.web.app/web-apps/story/${bookName}/content/audios/`
+  `${assetUrl}/${bookName}/content/content.json`,
+  `${assetUrl}/${bookName}/content/images/`,
+  `${assetUrl}/${bookName}/content/audios/`
 );
 
 app.initialize();

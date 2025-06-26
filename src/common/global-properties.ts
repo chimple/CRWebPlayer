@@ -5,3 +5,4 @@ const urlParams = new URLSearchParams(window.location.search);
 export var crUserId: string = urlParams.get("cr_user_id") || "unknown";
 export var campaignSource: string = urlParams.get("source") || "unknown";
 export var campaignId: string = urlParams.get("campaign_id") || "unknown";
+export var assetUrl: string = "https://curious-reader.web.app/web-apps/story";

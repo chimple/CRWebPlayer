@@ -3,10 +3,10 @@
     "short_name": "Curious Reader PWA",
     "icons": [
         {
-            "src": "red_bird_256.webp",
-            "sizes": "256x256",
+            "src": "image/icon.png",
+            "sizes": "64x64",
             "purpose": "any",
-            "type": "image/webp"
+            "type": "image/png"
         }
     ],
     "start_url": "/",

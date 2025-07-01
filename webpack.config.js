@@ -30,6 +30,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: "manifest.json", to: "." },
+        { from: "red_bird_256.webp", to: "." },
       ],
     }),
   ],

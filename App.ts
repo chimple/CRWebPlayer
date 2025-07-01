@@ -235,7 +235,7 @@ function handleUpdateFoundMessage(): void {
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
-let bookName = urlParams.get("book");
+let bookName = urlParams.get("lesson_id");
 
 const defaultBookName: string = "LetsFlyLevel2En";
 

@@ -235,7 +235,7 @@ function handleUpdateFoundMessage(): void {
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
-let bookName = urlParams.get("book");
+let bookName = urlParams.get("lesson_id");
 
 const defaultBookName: string = "LetsFlyLevel2En";
 
@@ -245,13 +245,15 @@ if (bookName == null) {
 
 console.log("Book Name: " + bookName);
 
-try {
-  const data = await AndroidBridge.requestInstalledAppInfo();
-  // console.log("Got response from Promise, isAppInstalled is:", data.isAppInstalled);
-  if(!Utils.isRespect)
-    Utils.isRespect = data.isAppInstalled;
-} catch (err) {
-  console.error("Error in installedAppInfo promise:", err);
+if(Utils.isRespect) {
+  try {
+    const data = await AndroidBridge.requestInstalledAppInfo();
+    // console.log("Got response from Promise, isAppInstalled is:", data.isAppInstalled);
+    if(!Utils.isRespect)
+      Utils.isRespect = data.isAppInstalled;
+  } catch (err) {
+    console.error("Error in installedAppInfo promise:", err);
+  }
 }
 
 

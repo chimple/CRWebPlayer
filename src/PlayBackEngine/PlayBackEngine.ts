@@ -39,8 +39,6 @@ export class PlayBackEngine {
 
     currentlyActiveWord: HTMLDivElement | null = null;
 
-    private lessonFinishedDispatched: boolean = false;
-
     constructor(imagesPath: string, audioPath: string) {
         this.imagesPath = imagesPath;
         this.audioPath = audioPath;
@@ -64,24 +62,11 @@ export class PlayBackEngine {
                 this.transitioningToPage = false;
                 this.playPageAudio(this.book.pages[currentIndex], currentIndex);
             }
-            // Dispatch lessonFinished and lock navigation if on last page
-            if (currentIndex === this.numberOfPages - 1 && !this.lessonFinishedDispatched) {
-                this.lessonFinishedDispatched = true;
+            this.updateArrowStates();
+            if (currentIndex === this.numberOfPages - 1) {
                 const result = { success: true, lastPage: this.currentPage + 1 };
                 const event = new CustomEvent("gameFinished", { detail: result });
                 window.dispatchEvent(event);
-                if (this.splideHandle) {
-                    this.splideHandle.options = {
-                        ...this.splideHandle.options,
-                        arrows: false,
-                        drag: false,
-                        keyboard: false
-                    };
-                    this.splideHandle.refresh();
-                }
-
-                const arrows = document.querySelectorAll('.splide__arrow');
-                arrows.forEach(arrow => (arrow as HTMLElement).style.display = 'none');
             }
         });
 
@@ -100,6 +85,8 @@ export class PlayBackEngine {
                 this.transitioningToPage = false;
                 this.playPageAudio(this.book.pages[currentIndex], currentIndex);
             }
+            // Update next/prev arrow states
+            this.updateArrowStates();
         });
 
         this.addPageResizeListener();
@@ -668,29 +655,64 @@ export class PlayBackEngine {
         }
     }
 
+    updateArrowStates() {
+        const nextArrow = document.querySelector('.splide__arrow--next') as HTMLElement | null;
+        const prevArrow = document.querySelector('.splide__arrow--prev') as HTMLElement | null;
+        // Next arrow: only disabled on last page
+        if (this.currentPage === this.numberOfPages - 1) {
+            if (nextArrow) {
+                nextArrow.style.pointerEvents = 'none';
+                nextArrow.style.opacity = '0.3';
+                nextArrow.style.display = '';
+            }
+        } else {
+            if (nextArrow) {
+                nextArrow.style.pointerEvents = '';
+                nextArrow.style.opacity = '1';
+                nextArrow.style.display = '';
+            }
+        }
+        // Prev arrow: only disabled on first page
+        if (this.currentPage === 0) {
+            if (prevArrow) {
+                prevArrow.style.pointerEvents = 'none';
+                prevArrow.style.opacity = '0.3';
+                prevArrow.style.display = '';
+            }
+        } else {
+            if (prevArrow) {
+                prevArrow.style.pointerEvents = '';
+                prevArrow.style.opacity = '1';
+                prevArrow.style.display = '';
+            }
+        }
+    }
+
     goToNextPage() {
-        if (this.transitioningToPage || this.lessonFinishedDispatched) return;
+        if (this.transitioningToPage) return;
         if (this.currentPage < this.numberOfPages - 1) {
             this.currentPage++;
         }
         this.transitionToPage(this.currentPage);
+        this.updateArrowStates();
     }
 
     goToPreviousPage() {
-        if (this.transitioningToPage || this.lessonFinishedDispatched) return;
+        if (this.transitioningToPage) return;
         if (this.currentPage > 0) {
             this.currentPage--;
         }
         this.transitionToPage(this.currentPage);
+        this.updateArrowStates();
     }
 
     transitionToPage(pageNumber: number) {
-        if (this.lessonFinishedDispatched) return;
         this.transitioningToPage = true;
         // Clamp pageNumber
         const clampedPage = Math.max(0, Math.min(pageNumber, this.numberOfPages - 1));
         this.currentPage = clampedPage;
         this.splideHandle.go(clampedPage);
         this.transitioningToPage = false;
+        this.updateArrowStates();
     }
 }

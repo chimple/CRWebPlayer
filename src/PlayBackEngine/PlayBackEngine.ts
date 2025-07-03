@@ -39,8 +39,6 @@ export class PlayBackEngine {
 
     currentlyActiveWord: HTMLDivElement | null = null;
 
-    private lessonFinishedDispatched: boolean = false;
-
     constructor(imagesPath: string, audioPath: string) {
         this.imagesPath = imagesPath;
         this.audioPath = audioPath;
@@ -63,25 +61,6 @@ export class PlayBackEngine {
                 this.currentPage = currentIndex;
                 this.transitioningToPage = false;
                 this.playPageAudio(this.book.pages[currentIndex], currentIndex);
-            }
-            // Dispatch lessonFinished and lock navigation if on last page
-            if (currentIndex === this.numberOfPages - 1 && !this.lessonFinishedDispatched) {
-                this.lessonFinishedDispatched = true;
-                const result = { success: true, lastPage: this.currentPage + 1 };
-                const event = new CustomEvent("gameFinished", { detail: result });
-                window.dispatchEvent(event);
-                if (this.splideHandle) {
-                    this.splideHandle.options = {
-                        ...this.splideHandle.options,
-                        arrows: false,
-                        drag: false,
-                        keyboard: false
-                    };
-                    this.splideHandle.refresh();
-                }
-
-                const arrows = document.querySelectorAll('.splide__arrow');
-                arrows.forEach(arrow => (arrow as HTMLElement).style.display = 'none');
             }
         });
 
@@ -140,7 +119,7 @@ export class PlayBackEngine {
         console.log("Attempting to play audio for page: " + pageIndex);
         console.log("Book has: " + this.book.pages.length + " pages");
         console.log("The page has " + page.visualElements.length + " visual elements");
-
+        
         for (let i = 0; i < page.visualElements.length; i++) {
             let visualElement = page.visualElements[i];
             if (visualElement.type === "audio") {
@@ -148,10 +127,10 @@ export class PlayBackEngine {
                 console.log("Found the audio element in page's visual elements: " + audioElement.audioSrc);
                 console.log("Does the audio element have timestamps? " + (audioElement.audioTimestamps !== undefined ? "Yes" : "No"));
                 console.log("Audio element domID: " + audioElement.domID);
-
+                
                 let audioElementDom = document.getElementById(audioElement.domID) as HTMLAudioElement;
                 console.log("Audio element dom is null or undefined? " + (audioElementDom === null || audioElementDom === undefined ? "Yes" : "No"));
-
+                
                 audioElementDom.play();
                 this.currentlyPlayingAudioElement = audioElementDom;
 
@@ -159,7 +138,7 @@ export class PlayBackEngine {
                 let currentIndex = 0;
 
                 console.log("Starting the auto player interval for word highlighting with 60ms interval");
-
+                
                 this.currentPageAutoPlayerInterval = setInterval(() => {
                         if (audioElement.audioTimestamps !== undefined) {
                         let currentTime = audioElementDom.currentTime;
@@ -216,20 +195,30 @@ export class PlayBackEngine {
 
     initializeCuriousReaderBook(book: Book) {
         this.numberOfPages = book.pages.length;
+
         for (let i = 0; i < book.pages.length; i++) {
             const slideLi = document.createElement("li");
             const slide = document.createElement("div");
+
             slideLi.style.display = "flex";
             slideLi.style.justifyContent = "center";
             slideLi.style.alignItems = "center";
+            
             slide.style.position = "relative";
             slide.style.width = "90%";
             slide.style.height = "90%";
             slide.style.top = "-4%";
+
             slideLi.appendChild(slide);
+
             slideLi.classList.add("splide__slide");
+
             let sentenceInitializedByAudio = false;
-            // Only build the slide content in the inner loop
+
+            // First we are adding the image and audio elements and the text after
+            // the reasoning behind this is that if the page contains an audio
+            // element in that case we should initialize text from the audio
+            // timestamps that we get from the content file
             for (let j = 0; j < book.pages[i].visualElements.length; j++) {
                 let visualElement = book.pages[i].visualElements[j];
                 if (visualElement.type == "image") {
@@ -239,7 +228,9 @@ export class PlayBackEngine {
                 } else if (visualElement.type == "audio") {
                     sentenceInitializedByAudio = true;
                     let audioElement: AudioElement = visualElement;
+
                     let textElement: TextElement = null;
+
                     for (let j = 0; j < book.pages[i].visualElements.length; j++) {
                         let visualElement = book.pages[i].visualElements[j];
                         if (visualElement.type == "text") {
@@ -247,7 +238,9 @@ export class PlayBackEngine {
                             break;
                         }
                     }
+
                     let imageElement: ImageElement = null;
+
                     for (let j = 0; j < book.pages[i].visualElements.length; j++) {
                         let visualElement = book.pages[i].visualElements[j];
                         if (visualElement.type == "image") {
@@ -255,6 +248,7 @@ export class PlayBackEngine {
                             break;
                         }
                     }
+
                     if (textElement) {
                         let audioAndTextDivs = this.createAudioAndTextContainers(i, audioElement, textElement, imageElement);
                         slide.appendChild(audioAndTextDivs[0]);
@@ -263,18 +257,22 @@ export class PlayBackEngine {
                         slide.appendChild(this.createAudioContainer(audioElement));
                     }
                 }
+
+                this.splideHandle.add(slideLi);
             }
+
+            // If the sentence wasn't not initialized by the audio object
+            // then we add it here
             if (!sentenceInitializedByAudio) {
                 for (let j = 0; j < book.pages[i].visualElements.length; j++) {
                     let visualElement = book.pages[i].visualElements[j];
                     if (visualElement.type == "text") {
                         let textElement: TextElement = visualElement;
+
                         slide.appendChild(this.createTextContainer(textElement));
                     }
                 }
             }
-            // Only add the slide ONCE per page (fixes double slide bug)
-            this.splideHandle.add(slideLi);
         }
     }
 
@@ -453,7 +451,7 @@ export class PlayBackEngine {
         textElementDiv.style.fontFamily = "Quicksand";
         textElementDiv.style.fontWeight = "800";
         // textElementDiv.style.fontSize = "2rem";
-
+        
         if (this.book.bookName.includes("ComeCome") ||
         this.book.bookName.includes("ILove") ||
         this.book.bookName.includes("GuessWhatIAm") ||
@@ -468,7 +466,7 @@ export class PlayBackEngine {
             textElementDiv.style.height = textElement.height + "%";
         }
 
-
+        
         if (imageElement.positionX > 28 && textElement.width < 88 && textElement.positionY < 65) {
             // Left side of the image, typically  the left aligned text starts way above compared to the middle text
             // which would have positionY > 70 if it's at the bottom of the image
@@ -491,7 +489,7 @@ export class PlayBackEngine {
         }
         sentenceParagraph.style.textAlign = "center";
         // sentenceParagraph.style.fontSize = "2rem";
-
+    
         sentenceParagraph.style.margin = "0px";
 
         for (let i = 0; i < sentenceArrayTrimmed.length; i++) {
@@ -500,7 +498,7 @@ export class PlayBackEngine {
             clickableWordElement.classList.add("cr-clickable-word");
             clickableWordElement.style.marginLeft = "10px";
             clickableWordElement.style.marginRight = "10px";
-
+            
             clickableWordElement.innerText = sentenceArrayTrimmed[i];
             clickableWordElement.addEventListener("click", (ev) => {
                 this.handleInteractiveWordClick(pageIndex, i);
@@ -585,7 +583,7 @@ export class PlayBackEngine {
                     this.currentlyActiveWord = wordElement;
                     wordElement.classList.add("cr-clickable-word-active");
                     wordElement.style.color = audioElement.glowColor;
-
+    
                     this.currentWordPlayingTimeout = setTimeout(() => {
                         wordElement.classList.remove("cr-clickable-word-active");
                         wordElement.style.color = "white";
@@ -669,15 +667,15 @@ export class PlayBackEngine {
     }
 
     goToNextPage() {
-        if (this.transitioningToPage || this.lessonFinishedDispatched) return;
-        if (this.currentPage < this.numberOfPages - 1) {
+        if (this.transitioningToPage) return;
+        if (this.currentPage < this.numberOfPages) {
             this.currentPage++;
         }
         this.transitionToPage(this.currentPage);
     }
 
     goToPreviousPage() {
-        if (this.transitioningToPage || this.lessonFinishedDispatched) return;
+        if (this.transitioningToPage) return;
         if (this.currentPage > 0) {
             this.currentPage--;
         }
@@ -685,12 +683,6 @@ export class PlayBackEngine {
     }
 
     transitionToPage(pageNumber: number) {
-        if (this.lessonFinishedDispatched) return;
         this.transitioningToPage = true;
-        // Clamp pageNumber
-        const clampedPage = Math.max(0, Math.min(pageNumber, this.numberOfPages - 1));
-        this.currentPage = clampedPage;
-        this.splideHandle.go(clampedPage);
-        this.transitioningToPage = false;
     }
 }

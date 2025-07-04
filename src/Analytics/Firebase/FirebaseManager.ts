@@ -13,9 +13,6 @@ export class FirebaseAnalyticsManager {
       this.firebaseApp = initializeApp(firebaseConfig);
       if (!Utils.isRespect) {
         this.firebaseAnalytics = getAnalytics(this.firebaseApp);
-        console.log("Firebase Analytics initialized.");
-      } else {
-        console.warn("Offline: Firebase Analytics not initialized.");
       }
     } catch (error) {
       console.error("Error while initializing Firebase:", error);
@@ -34,7 +31,6 @@ export class FirebaseAnalyticsManager {
       if (this.firebaseAnalytics) {
         logEvent(this.firebaseAnalytics, eventName, payload);
       }
-      console.log(`Logging custom event: ${eventName}`, payload);
     } catch (error) {
       console.error("Error while logging custom event:", error);
     }
@@ -45,7 +41,6 @@ export class FirebaseAnalyticsManager {
       if (this.firebaseAnalytics) {
         logEvent(this.firebaseAnalytics, "session_start", payload);
       }
-      console.log("Logging session start with data:", payload);
     } catch (error) {
       console.error("Error while logging session start:", error);
     }
@@ -56,7 +51,6 @@ export class FirebaseAnalyticsManager {
       if (this.firebaseAnalytics) {
         logEvent(this.firebaseAnalytics, eventName, payload);
       }
-      console.log("Logging download progress for", eventName, "with data:", payload);
     } catch (error) {
       console.error("Error while logging download progress:", error);
     }

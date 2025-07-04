@@ -33,9 +33,7 @@ export const AndroidBridge = {
         // Stringify the data before sending to avoid [object Object] issues
         const jsonData = typeof data === "object" ? JSON.stringify(data) : data;
         window.Android.sendDataToContainer(key, jsonData);
-      } else {
-        console.warn("Android bridge not available: sendDataToContainer");
-      }
+      } 
     } catch (error) {
       console.error("Error sending data to container:", error);
     }
@@ -80,8 +78,6 @@ export const AndroidBridge = {
       if (type && _callbacks[type]) {
         _callbacks[type](data); // Resolve the Promise
         delete _callbacks[type]; // Clean up after resolving
-      } else {
-        console.warn("No callback found for type:", type);
       }
     } catch (e) {
       console.error("Failed to parse data from Android:", e);

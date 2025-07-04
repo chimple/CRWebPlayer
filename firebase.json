@@ -9,6 +9,11 @@
       "public": "./dist",
       "site": "ibiza-stage-story-respect-dev",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    },
+    {
+      "public": "./dist",
+      "site": "curiousreader-respect-story",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
     }
   ]
 }

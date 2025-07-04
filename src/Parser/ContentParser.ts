@@ -27,8 +27,6 @@ export class ContentParser {
             this.parseContentJSONFile()
                 .then((contentJSON) => {
                     this.contentJSON = contentJSON;
-                    console.log("Content JSON file parsed!");
-                    console.log(this.contentJSON);
 
                     let book: Book = {
                         bookName: "",
@@ -86,8 +84,6 @@ export class ContentParser {
                 page.visualElements = this.parsePageGDL(pageJSON);
                 pages.push(page);
             }
-        } else {
-            console.log("Unknown book type!");
         }
 
         return pages;

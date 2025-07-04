@@ -45,11 +45,23 @@ export class PlayBackEngine {
         this.currentPage = 0;
         this.splideHandle = new Splide(".splide", {
             fixedHeight: window.innerHeight - 20,
+            type: 'slide',
+            rewind: false,
+            perPage: 1,
+            pagination: true,
+            trimSpace: false,
         }).mount();
 
-        this.splideHandle.on("move", (newIndex, oldIndex, destIndex) => {
+        this.splideHandle.on('move', (newIndex, oldIndex, destIndex) => {
+            if (newIndex >= this.numberOfPages) {
+                this.splideHandle.go(this.numberOfPages - 1);
+                return false;
+            }
+            if (newIndex < 0) {
+                this.splideHandle.go(0);
+                return false;
+            }
             if (this.currentPage !== newIndex) {
-                console.log("Stopping audio for page from move: " + oldIndex);
                 this.transitioningToPage = true;
                 this.stopPageAudio(this.book.pages[oldIndex]);
             }
@@ -57,7 +69,6 @@ export class PlayBackEngine {
 
         this.splideHandle.on("moved", (currentIndex, prevIndex, destIndex) => {
             if (this.currentPage !== currentIndex) {
-                console.log("Playing audio for page from moved: " + currentIndex);
                 this.currentPage = currentIndex;
                 this.transitioningToPage = false;
                 this.playPageAudio(this.book.pages[currentIndex], currentIndex);
@@ -67,12 +78,12 @@ export class PlayBackEngine {
                 const result = { success: true, lastPage: this.currentPage + 1 };
                 const event = new CustomEvent("gameFinished", { detail: result });
                 window.dispatchEvent(event);
+                console.log("Game finished event dispatched:",event);
             }
         });
 
         this.splideHandle.on("drag", (newIndex, oldIndex, destIndex) => {
             if (this.currentPage !== newIndex) {
-                console.log("Stopping audio for page from drag: " + oldIndex);
                 this.transitioningToPage = true;
                 this.stopPageAudio(this.book.pages[oldIndex]);
             }
@@ -80,7 +91,6 @@ export class PlayBackEngine {
 
         this.splideHandle.on("dragged", (currentIndex, prevIndex, destIndex) => {
             if (this.currentPage !== currentIndex) {
-                console.log("Playing audio for page from dragged: " + currentIndex);
                 this.currentPage = currentIndex;
                 this.transitioningToPage = false;
                 this.playPageAudio(this.book.pages[currentIndex], currentIndex);
@@ -124,28 +134,17 @@ export class PlayBackEngine {
 
     playPageAudio(page: Page, pageIndex: number) {
         // loop through page's visual elements, if we find an audio object get it by id and play it
-        console.log("Attempting to play audio for page: " + pageIndex);
-        console.log("Book has: " + this.book.pages.length + " pages");
-        console.log("The page has " + page.visualElements.length + " visual elements");
-
         for (let i = 0; i < page.visualElements.length; i++) {
             let visualElement = page.visualElements[i];
             if (visualElement.type === "audio") {
                 let audioElement: AudioElement = visualElement;
-                console.log("Found the audio element in page's visual elements: " + audioElement.audioSrc);
-                console.log("Does the audio element have timestamps? " + (audioElement.audioTimestamps !== undefined ? "Yes" : "No"));
-                console.log("Audio element domID: " + audioElement.domID);
-
                 let audioElementDom = document.getElementById(audioElement.domID) as HTMLAudioElement;
-                console.log("Audio element dom is null or undefined? " + (audioElementDom === null || audioElementDom === undefined ? "Yes" : "No"));
 
                 audioElementDom.play();
                 this.currentlyPlayingAudioElement = audioElementDom;
 
                 let lastWordIndex = 0;
                 let currentIndex = 0;
-
-                console.log("Starting the auto player interval for word highlighting with 60ms interval");
 
                 this.currentPageAutoPlayerInterval = setInterval(() => {
                         if (audioElement.audioTimestamps !== undefined) {
@@ -161,7 +160,6 @@ export class PlayBackEngine {
                             }
 
                             if (lastWordIndex < currentIndex) {
-                                // console.log("Current index: " + currentIndex + " last index: " + lastWordIndex);
                                 let wordElement = document.getElementById(audioElement.domID + "_word_" + lastWordIndex) as HTMLDivElement;
                                 wordElement.classList.remove("cr-clickable-word-active");
                                 wordElement.style.color = "white";
@@ -169,7 +167,6 @@ export class PlayBackEngine {
                             }
                         }
                         if (currentTime >= audioElement.audioTimestamps.timestamps[audioElement.audioTimestamps.timestamps.length - 1].endTimestamp - 0.1) {
-                            // console.log("Finished Highlighting! Current index: " + currentIndex + " last index: " + lastWordIndex);
                             let wordElement = document.getElementById(audioElement.domID + "_word_" + currentIndex) as HTMLDivElement;
                             wordElement.classList.remove("cr-clickable-word-active");
                             wordElement.style.color = "white";
@@ -190,18 +187,29 @@ export class PlayBackEngine {
     }
 
     initializeBook(book: Book) {
-        this.book = book;
-        this.currentBookType = book.bookType;
-        this.numberOfPages = book.pages.length;
+        try {
+            this.book = book;
+            this.currentBookType = book.bookType;
+            this.numberOfPages = book.pages.length;
 
-        if (this.currentBookType === BookType.CuriousReader) {
-            this.initializeCuriousReaderBook(book);
-        } else if (this.currentBookType === BookType.GDL) {
-            this.initializeGDLBook(book);
+            if (this.currentBookType === BookType.CuriousReader) {
+                this.initializeCuriousReaderBook(book);
+            } else if (this.currentBookType === BookType.GDL) {
+                this.initializeGDLBook(book);
+            }
+            console.log("Story loaded successfully");
+        } catch (error) {
+            console.error("Error loading story:", error);
         }
     }
 
     initializeCuriousReaderBook(book: Book) {
+        const splideTrack = document.querySelector('.splide__list');
+        if (splideTrack) {
+            while (splideTrack.firstChild) {
+                splideTrack.removeChild(splideTrack.firstChild);
+            }
+        }
         this.numberOfPages = book.pages.length;
         for (let i = 0; i < book.pages.length; i++) {
             const slideLi = document.createElement("li");

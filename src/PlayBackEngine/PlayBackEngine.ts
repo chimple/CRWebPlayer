@@ -39,7 +39,16 @@ export class PlayBackEngine {
 
     currentlyActiveWord: HTMLDivElement | null = null;
 
+    static gameFinishedDispatchedGlobal: boolean = false;
+
+    static bookInitialized: boolean = false;
+
     constructor(imagesPath: string, audioPath: string) {
+        // only single instance will be created now
+        if ((window as any)._playBackEngineInstance) {
+            return (window as any)._playBackEngineInstance;
+        }
+        (window as any)._playBackEngineInstance = this;
         this.imagesPath = imagesPath;
         this.audioPath = audioPath;
         this.currentPage = 0;
@@ -68,18 +77,19 @@ export class PlayBackEngine {
         });
 
         this.splideHandle.on("moved", (currentIndex, prevIndex, destIndex) => {
+            if (currentIndex < 0 || currentIndex >= this.numberOfPages) {
+                return;
+            }
             if (this.currentPage !== currentIndex) {
                 this.currentPage = currentIndex;
                 this.transitioningToPage = false;
-                this.playPageAudio(this.book.pages[currentIndex], currentIndex);
+                const page = this.book.pages[currentIndex];
+                if (page && page.visualElements) {
+                    this.playPageAudio(page, currentIndex);
+                }
             }
             this.updateArrowStates();
-            if (currentIndex === this.numberOfPages - 1) {
-                const result = { success: true, lastPage: this.currentPage + 1 };
-                const event = new CustomEvent("gameFinished", { detail: result });
-                window.dispatchEvent(event);
-                console.log("Game finished event dispatched:",event);
-            }
+            this.dispatchGameFinished(currentIndex);
         });
 
         this.splideHandle.on("drag", (newIndex, oldIndex, destIndex) => {
@@ -133,6 +143,10 @@ export class PlayBackEngine {
     }
 
     playPageAudio(page: Page, pageIndex: number) {
+        if (!page || !page.visualElements) {
+            console.warn("playPageAudio: page is undefined or has no visualElements", page, pageIndex);
+            return;
+        }
         // loop through page's visual elements, if we find an audio object get it by id and play it
         for (let i = 0; i < page.visualElements.length; i++) {
             let visualElement = page.visualElements[i];
@@ -187,6 +201,10 @@ export class PlayBackEngine {
     }
 
     initializeBook(book: Book) {
+        if (PlayBackEngine.bookInitialized) {
+            return;
+        }
+        PlayBackEngine.bookInitialized = true;
         try {
             this.book = book;
             this.currentBookType = book.bookType;
@@ -722,5 +740,21 @@ export class PlayBackEngine {
         this.splideHandle.go(clampedPage);
         this.transitioningToPage = false;
         this.updateArrowStates();
+    }
+
+    dispatchGameFinished(currentIndex: number) {
+        if (
+            currentIndex === this.numberOfPages - 1 &&
+            !PlayBackEngine.gameFinishedDispatchedGlobal
+        ) {
+            PlayBackEngine.gameFinishedDispatchedGlobal = true; // Set static flag immediately
+            const result = { success: true, lastPage: this.currentPage + 1 };
+            const event = new CustomEvent("gameFinished", { detail: result });
+            window.dispatchEvent(event);
+            console.log("Game finished event dispatched:", event);
+        }
+        if (currentIndex !== this.numberOfPages - 1 && PlayBackEngine.gameFinishedDispatchedGlobal) {
+            PlayBackEngine.gameFinishedDispatchedGlobal = false;
+        }
     }
 }

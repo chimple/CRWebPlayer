@@ -124,6 +124,9 @@ export class PlayBackEngine {
     }
 
     stopPageAudio(page: Page) {
+        if (!page || !page.visualElements) {
+            return;
+        }
         // loop through page's visual elements, if we find an audio object get it by id and stop it
         for (let i = 0; i < page.visualElements.length; i++) {
             let visualElement = page.visualElements[i];
@@ -144,7 +147,6 @@ export class PlayBackEngine {
 
     playPageAudio(page: Page, pageIndex: number) {
         if (!page || !page.visualElements) {
-            console.warn("playPageAudio: page is undefined or has no visualElements", page, pageIndex);
             return;
         }
         // loop through page's visual elements, if we find an audio object get it by id and play it

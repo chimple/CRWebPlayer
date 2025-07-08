@@ -42,7 +42,6 @@ export class App {
   // public firebaseAnalyticsManager: FirebaseAnalyticsManager;
 
   constructor(bookName: string, contentFilePath: string, imagesPath: string, audioPath: string) {
-    console.log("Curious Reader App " + appVersion + " initializing!");
 
     this.bookName = bookName;
     this.contentFilePath = contentFilePath;
@@ -70,7 +69,6 @@ export class App {
       book.bookName = this.bookName;
 
       // Log book information for debugging
-      console.log("App initialized with book:", book);
 
 
 
@@ -87,7 +85,6 @@ export class App {
       //fake progress bar to pass on the functions
       this.simulateFakeCachingProgress(book.bookName);
 
-      console.log("Initialization completed successfully!");
     } catch (error) {
       // Handle any errors that may occur during initialization
       console.error("Initialization error:", error);
@@ -243,7 +240,6 @@ if (bookName == null) {
   bookName = defaultBookName;
 }
 
-console.log("Book Name: " + bookName);
 
 if(Utils.isRespect) {
   try {

@@ -43,6 +43,8 @@ export class PlayBackEngine {
 
     static bookInitialized: boolean = false;
 
+    sessionStartTime: number;
+
     constructor(imagesPath: string, audioPath: string) {
         // only single instance will be created now
         if ((window as any)._playBackEngineInstance) {
@@ -111,6 +113,8 @@ export class PlayBackEngine {
 
         this.addPageResizeListener();
         this.addMinimzationListener();
+
+        this.sessionStartTime = Date.now();
     }
 
     addMinimzationListener() {
@@ -221,6 +225,7 @@ export class PlayBackEngine {
         } catch (error) {
             console.error("Error loading story:", error);
         }
+        this.sessionStartTime = Date.now(); // Reset on book load
     }
 
     initializeCuriousReaderBook(book: Book) {
@@ -751,7 +756,11 @@ export class PlayBackEngine {
         ) {
             PlayBackEngine.gameFinishedDispatchedGlobal = true; // Set static flag immediately
             const result = { success: true, lastPage: this.currentPage + 1 };
-            const event = new CustomEvent("gameFinished", { detail: result });
+            const duration = (Date.now() - this.sessionStartTime) / 1000;
+            const event = new CustomEvent("gameFinished", { detail: {
+                result: result,
+                duration: duration,
+            } });
             window.dispatchEvent(event);
             console.log("Game finished event dispatched:", event);
         }

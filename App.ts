@@ -397,7 +397,7 @@ const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 let bookName = urlParams.get("lesson_id");
 
-const defaultBookName: string = "LetsFlyLevel2En";
+const defaultBookName: string = "TheUmbrellasSomali";
 
 let matchedBook : string | null = null;
 if (bookName) {

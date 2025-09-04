@@ -252,7 +252,7 @@ export class PlayBackEngine {
             // Add resize listener to handle orientation changes
             window.addEventListener('resize', () => {
                 const isPortrait = window.innerHeight > window.innerWidth;
-                slide.style.height = isPortrait ? "30%" : "0%";
+                slide.style.height = isPortrait ? "30%" : "95%";
             });
 
             slideLi.appendChild(slide);

@@ -252,7 +252,7 @@ export class PlayBackEngine {
             // Add resize listener to handle orientation changes
             window.addEventListener('resize', () => {
                 const isPortrait = window.innerHeight > window.innerWidth;
-                slide.style.height = isPortrait ? "30%" : "95%";
+                slide.style.height = isPortrait ? "30%" : "0%";
             });
 
             slideLi.appendChild(slide);
@@ -401,7 +401,7 @@ export class PlayBackEngine {
             imageElementImg.style.width = "100%";
             imageElementImg.style.height = "100%";
             imageElementDiv.appendChild(imageElementImg);
-            imageElementImg.style.height = "auto"; 
+            imageElementImg.style.height = "80%"; 
             imageElementImg.style.objectFit = "contain"; 
         }
 
@@ -775,4 +775,4 @@ export class PlayBackEngine {
             PlayBackEngine.gameFinishedDispatchedGlobal = false;
         }
     }
-}
+}   

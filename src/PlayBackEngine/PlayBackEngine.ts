@@ -244,8 +244,17 @@ export class PlayBackEngine {
             slideLi.style.alignItems = "center";
             slide.style.position = "relative";
             slide.style.width = "90%";
-            slide.style.height = "90%";
-            slide.style.top = "-4%";
+
+            const isPortrait = window.innerHeight > window.innerWidth;
+            slide.style.height = isPortrait ? "30%" : "95%";
+            slide.style.top = "-13%";
+
+            // Add resize listener to handle orientation changes
+            window.addEventListener('resize', () => {
+                const isPortrait = window.innerHeight > window.innerWidth;
+                slide.style.height = isPortrait ? "30%" : "95%";
+            });
+
             slideLi.appendChild(slide);
             slideLi.classList.add("splide__slide");
             let sentenceInitializedByAudio = false;
@@ -318,7 +327,7 @@ export class PlayBackEngine {
         this.book.bookName.includes("IAmFlying")) {
             textElementDiv.style.top = textElement.positionY + "%";
             textElementDiv.style.left = "0%";
-            textElementDiv.style.width = "100%";
+            textElementDiv.style.width = "80%";
             textElementDiv.style.height = textElement.height + "%";
             textElementDiv.style.textAlign = "center";
         } else {
@@ -386,16 +395,14 @@ export class PlayBackEngine {
                     this.handleGlowImageClick(pageIndex, imageElement.domID.split("_")[1]);
                 });
             }
-        } else {
-            imageElementDiv.id = imageElement.domID;
-            imageElementDiv.classList.add("cr-image");
-
+        } else { 
             let imageElementImg = document.createElement("img");
-            imageElementImg.src =
-                this.imagesPath + imageElement.imageSource.replace("images/", "");
+            imageElementImg.src = this.imagesPath + imageElement.imageSource.replace("images/", "");
             imageElementImg.style.width = "100%";
             imageElementImg.style.height = "100%";
             imageElementDiv.appendChild(imageElementImg);
+            imageElementImg.style.height = "auto"; 
+            imageElementImg.style.objectFit = "contain"; 
         }
 
         return imageElementDiv;

@@ -399,9 +399,8 @@ export class PlayBackEngine {
             let imageElementImg = document.createElement("img");
             imageElementImg.src = this.imagesPath + imageElement.imageSource.replace("images/", "");
             imageElementImg.style.width = "100%";
-            imageElementImg.style.height = "100%";
+            imageElementImg.style.height = "80%";
             imageElementDiv.appendChild(imageElementImg);
-            imageElementImg.style.height = "auto"; 
             imageElementImg.style.objectFit = "contain"; 
         }
 
@@ -775,4 +774,4 @@ export class PlayBackEngine {
             PlayBackEngine.gameFinishedDispatchedGlobal = false;
         }
     }
-}
+}   
